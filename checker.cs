@@ -41,15 +41,13 @@ namespace paradigm_shift_csharp
         return false;
     }
 
-    if (IsApproachingDischarge(value, min, max))
+    if (CheckDischargeWarning(value, min, max, parameterName, out message))
     {
-        message = $"{parameterName} warning: Approaching discharge!";
         return true;
     }
 
-    if (IsApproachingChargePeak(value, min, max))
+    if (CheckChargePeakWarning(value, min, max, parameterName, out message))
     {
-        message = $"{parameterName} warning: Approaching charge-peak!";
         return true;
     }
 
@@ -57,16 +55,28 @@ namespace paradigm_shift_csharp
     return false;
 }
 
-static bool IsApproachingDischarge(float value, float min, float max)
+static bool CheckDischargeWarning(float value, float min, float max, string parameterName, out string message)
 {
     float warningLowerLimit = min + GetWarningTolerance(max);
-    return value >= min && value < warningLowerLimit;
+    if (value >= min && value < warningLowerLimit)
+    {
+        message = $"{parameterName} warning: Approaching discharge!";
+        return true;
+    }
+    message = null; // No warning
+    return false; // No warning
 }
 
-static bool IsApproachingChargePeak(float value, float min, float max)
+static bool CheckChargePeakWarning(float value, float min, float max, string parameterName, out string message)
 {
     float warningUpperLimit = max - GetWarningTolerance(max);
-    return value > warningUpperLimit && value <= max;
+    if (value > warningUpperLimit && value <= max)
+    {
+        message = $"{parameterName} warning: Approaching charge-peak!";
+        return true;
+    }
+    message = null; // No warning
+    return false; // No warning
 }
 
 
