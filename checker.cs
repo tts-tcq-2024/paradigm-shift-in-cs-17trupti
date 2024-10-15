@@ -34,54 +34,49 @@ namespace paradigm_shift_csharp
         }
 
         static bool IsInWarningRange(float value, float min, float max, string parameterName, out string message, bool warnForParameter)
-{
-    if (!warnForParameter)
-    {
-        message = $"{parameterName} is within the normal range.";
-        return false;
-    }
-
-    message = GetWarningMessage(value, min, max, parameterName);
-    return message != $"{parameterName} is within the normal range.";
-}
-
-static string GetWarningMessage(float value, float min, float max, string parameterName)
-{
-    if (IsOutOfRange(value, min, max))
-    {
-        return $"{parameterName} is out of range!";
-    }
-
-    return GetApproachingWarning(value, min, max, parameterName);
-}
-
-static bool IsOutOfRange(float value, float min, float max)
-{
-    return value < min || value > max;
-}
-
-static string GetApproachingWarning(float value, float min, float max, string parameterName)
-{
-    float warningLowerLimit = min + GetWarningTolerance(max);
-    float warningUpperLimit = max - GetWarningTolerance(max);
-
-    if (value < warningLowerLimit)
-    {
-        return $"{parameterName} warning: Approaching discharge!";
-    }
-
-    if (value > warningUpperLimit)
-    {
-        return $"{parameterName} warning: Approaching charge-peak!";
-    }
-
-    return $"{parameterName} is within the normal range.";
-}
-
-
-
-
-
+        {
+            if (!warnForParameter)
+            {
+                message = $"{parameterName} is within the normal range.";
+                return false;
+            }
+            
+            message = GetWarningMessage(value, min, max, parameterName);
+            return message != $"{parameterName} is within the normal range.";
+        }
+        
+        static string GetWarningMessage(float value, float min, float max, string parameterName)
+        {
+            if (IsOutOfRange(value, min, max))
+            {
+                return $"{parameterName} is out of range!";
+            }
+            
+            return GetApproachingWarning(value, min, max, parameterName);
+        }
+        
+        static bool IsOutOfRange(float value, float min, float max)
+        {
+            return value < min || value > max;
+        }
+        
+        static string GetApproachingWarning(float value, float min, float max, string parameterName)
+        {
+            float warningLowerLimit = min + GetWarningTolerance(max);
+            float warningUpperLimit = max - GetWarningTolerance(max);
+            
+            if (value < warningLowerLimit)
+            {
+                return $"{parameterName} warning: Approaching discharge!";
+            }
+            
+            if (value > warningUpperLimit)
+            {
+                return $"{parameterName} warning: Approaching charge-peak!";
+            }
+            
+            return $"{parameterName} is within the normal range.";
+        }
 
         static bool IsParameterInRange(float value, float min, float max, string parameterName, out string message, bool warnForParameter = true)
         {
