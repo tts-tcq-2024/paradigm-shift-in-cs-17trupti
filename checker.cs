@@ -4,50 +4,69 @@ namespace paradigm_shift_csharp
 {
     class Checker
     {
-        static float tolerancePercentage = 0.05f; // 5% tolerance for warnings
+        static float tolerancePercentage = 0.05f;
 
-        // Method to calculate the warning tolerance for a parameter
         static float GetWarningTolerance(float upperLimit)
         {
             return upperLimit * tolerancePercentage;
         }
 
-        // Refactored method to check individual parameters, including warning logic
-        static bool IsParameterInRange(float value, float min, float max, string parameterName, out string message, bool warnForParameter = true)
+        static bool IsTooLow(float value, float min, string parameterName, out string message)
         {
-            float warningLowerLimit = min + GetWarningTolerance(max);
-            float warningUpperLimit = max - GetWarningTolerance(max);
-
             if (value < min)
             {
                 message = $"{parameterName} is too low!";
-                return false;
+                return true;
             }
-            else if (value > max)
-            {
-                message = $"{parameterName} is too high!";
-                return false;
-            }
-            else if (warnForParameter && value >= min && value < warningLowerLimit)
-            {
-                message = $"{parameterName} warning: Approaching discharge!";
-            }
-            else if (warnForParameter && value > warningUpperLimit && value <= max)
-            {
-                message = $"{parameterName} warning: Approaching charge-peak!";
-            }
-            else
-            {
-                message = $"{parameterName} is within the normal range.";
-            }
-            return true;
+            message = string.Empty;
+            return false;
         }
 
-        // Function to check battery status and include warnings for relevant parameters
+        static bool IsTooHigh(float value, float max, string parameterName, out string message)
+        {
+            if (value > max)
+            {
+                message = $"{parameterName} is too high!";
+                return true;
+            }
+            message = string.Empty;
+            return false;
+        }
+
+        static bool IsInWarningRange(float value, float min, float max, string parameterName, out string message, bool warnForParameter)
+        {
+            float warningLowerLimit = min + GetWarningTolerance(max);
+            float warningUpperLimit = max - GetWarningTolerance(max);
+            
+            if (!warnForParameter)
+            {
+                message = $"{parameterName} is within the normal range.";
+                return false;
+            }
+            
+            message = (value >= min && value < warningLowerLimit) ?
+                $"{parameterName} warning: Approaching discharge!" :
+                (value > warningUpperLimit && value <= max) ?
+                $"{parameterName} warning: Approaching charge-peak!" :
+                $"{parameterName} is within the normal range.";
+            
+            return value >= min && value < warningLowerLimit || value > warningUpperLimit && value <= max;
+        }
+
+        static bool IsParameterInRange(float value, float min, float max, string parameterName, out string message, bool warnForParameter = true)
+        {
+            if (IsTooLow(value, min, parameterName, out message) || IsTooHigh(value, max, parameterName, out message))
+            {
+                return false;
+            }
+
+            IsInWarningRange(value, min, max, parameterName, out message, warnForParameter);
+            return true;
+        }
+        
         static bool BatteryIsOk(float temperature, float soc, float chargeRate, bool warnForTemperature = true, bool warnForSoc = true, bool warnForChargeRate = true)
         {
             string message;
-
             bool temperatureOk = IsParameterInRange(temperature, 0, 45, "Temperature", out message, warnForTemperature);
             Console.WriteLine(message);
 
@@ -60,7 +79,6 @@ namespace paradigm_shift_csharp
             return temperatureOk && socOk && chargeRateOk;
         }
 
-        // Test cases with warning checks
         static void RunTests()
         {
             ExpectTrue(BatteryIsOk(25, 70, 0.7f));   // Normal scenario
@@ -73,7 +91,6 @@ namespace paradigm_shift_csharp
             ExpectTrue(BatteryIsOk(25, 79, 0.7f));   // Approaching charge-peak warning for SOC
         }
 
-        // Assertion functions
         static void ExpectTrue(bool expression)
         {
             if (!expression)
