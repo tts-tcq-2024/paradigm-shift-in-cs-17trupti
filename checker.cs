@@ -47,20 +47,37 @@ namespace paradigm_shift_csharp
 
 static string GetWarningMessage(float value, float min, float max, string parameterName)
 {
+    if (IsOutOfRange(value, min, max))
+    {
+        return $"{parameterName} is out of range!";
+    }
+
+    return GetApproachingWarning(value, min, max, parameterName);
+}
+
+static bool IsOutOfRange(float value, float min, float max)
+{
+    return value < min || value > max;
+}
+
+static string GetApproachingWarning(float value, float min, float max, string parameterName)
+{
     float warningLowerLimit = min + GetWarningTolerance(max);
     float warningUpperLimit = max - GetWarningTolerance(max);
 
-    if (value >= min && value < warningLowerLimit)
+    if (value < warningLowerLimit)
     {
         return $"{parameterName} warning: Approaching discharge!";
     }
-    else if (value > warningUpperLimit && value <= max)
+
+    if (value > warningUpperLimit)
     {
         return $"{parameterName} warning: Approaching charge-peak!";
     }
 
     return $"{parameterName} is within the normal range.";
 }
+
 
 
 
