@@ -35,34 +35,40 @@ namespace paradigm_shift_csharp
 
         static bool IsInWarningRange(float value, float min, float max, string parameterName, out string message, bool warnForParameter)
 {
-    // Early return if warnings are not needed
     if (!warnForParameter)
     {
         message = $"{parameterName} is within the normal range.";
         return false;
     }
 
-    float warningLowerLimit = min + GetWarningTolerance(max);
-    float warningUpperLimit = max - GetWarningTolerance(max);
-
-    // Check for discharge warning
-    if (value >= min && value < warningLowerLimit)
+    if (IsApproachingDischarge(value, min, max))
     {
         message = $"{parameterName} warning: Approaching discharge!";
         return true;
     }
 
-    // Check for charge-peak warning
-    if (value > warningUpperLimit && value <= max)
+    if (IsApproachingChargePeak(value, min, max))
     {
         message = $"{parameterName} warning: Approaching charge-peak!";
         return true;
     }
 
-    // Default message for normal range
     message = $"{parameterName} is within the normal range.";
     return false;
 }
+
+static bool IsApproachingDischarge(float value, float min, float max)
+{
+    float warningLowerLimit = min + GetWarningTolerance(max);
+    return value >= min && value < warningLowerLimit;
+}
+
+static bool IsApproachingChargePeak(float value, float min, float max)
+{
+    float warningUpperLimit = max - GetWarningTolerance(max);
+    return value > warningUpperLimit && value <= max;
+}
+
 
 
         static bool IsParameterInRange(float value, float min, float max, string parameterName, out string message, bool warnForParameter = true)
