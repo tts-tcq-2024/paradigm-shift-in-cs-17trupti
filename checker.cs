@@ -103,5 +103,42 @@ namespace paradigm_shift_csharp
 
             return temperatureOk && socOk && chargeRateOk;
         }
+
+        static void RunTests()
+        {
+            ExpectTrue(BatteryIsOk(25, 70, 0.7f));   // Normal scenario
+            ExpectFalse(BatteryIsOk(50, 70, 0.7f));  // High temperature
+            ExpectFalse(BatteryIsOk(-5, 70, 0.7f));  // Low temperature
+            ExpectFalse(BatteryIsOk(25, 85, 0.7f));  // High SOC
+            ExpectFalse(BatteryIsOk(25, 15, 0.7f));  // Low SOC
+            ExpectFalse(BatteryIsOk(25, 70, 0.9f));  // High charge rate
+            ExpectTrue(BatteryIsOk(25, 21, 0.7f));   // Approaching discharge warning for SOC
+            ExpectTrue(BatteryIsOk(25, 79, 0.7f));   // Approaching charge-peak warning for SOC
+        }
+
+        static void ExpectTrue(bool expression)
+        {
+            if (!expression)
+            {
+                Console.WriteLine("Expected true, but got false");
+                Environment.Exit(1);
+            }
+        }
+
+        static void ExpectFalse(bool expression)
+        {
+            if (expression)
+            {
+                Console.WriteLine("Expected false, but got true");
+                Environment.Exit(1);
+            }
+        }
+
+        static int Main()
+        {
+            RunTests();
+            Console.WriteLine("All tests passed");
+            return 0;
+        }
     }
 }
